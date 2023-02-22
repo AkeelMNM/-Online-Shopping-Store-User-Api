@@ -4,9 +4,10 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.fashionstore.usermanagement.dao.UserRepository;
 import com.fashionstore.usermanagement.model.User;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 
 @Service
 public class UserService {
@@ -16,6 +17,11 @@ public class UserService {
 	
 	public User createUser(User user) {
 		return userRepository.save(user);
+	}
+	
+	public User checkLogin(String email) {
+		User user = userRepository.findOneByEmail(email);
+		return user;
 	}
 	
 	public User getUser(String id) {
