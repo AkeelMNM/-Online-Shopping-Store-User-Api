@@ -33,7 +33,6 @@ public class UserService {
 	public User updateUser(String id, User user) {
 		Optional<User> Acc = userRepository.findById(id);
 		User existAcc = Acc.get();
-		String result = null;
 		
 		if(!existAcc.getEmail().equals(user.getEmail()) && !user.getEmail().equals("")) {
 			existAcc.setEmail(user.getEmail());

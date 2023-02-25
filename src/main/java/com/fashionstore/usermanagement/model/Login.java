@@ -4,6 +4,7 @@ public class Login {
 	private String _id;
 	private Boolean isVerified;
 	private Boolean isActive;
+	private String jwtToken;
 	
 	public Login(){
 		
@@ -32,6 +33,13 @@ public class Login {
 	public void setIsActive(Boolean isActive) {
 		this.isActive = isActive;
 	}
-	
+
+	public String getJwtToken() {
+		return jwtToken;
+	}
+
+	public void setJwtToken(String jwtToken) {
+		this.jwtToken = jwtToken;
+	}
 	
 }
