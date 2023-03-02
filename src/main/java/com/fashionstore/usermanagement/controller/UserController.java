@@ -1,13 +1,17 @@
 package com.fashionstore.usermanagement.controller;
 
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.stream.Collectors;
 
-import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,9 +28,8 @@ import com.fashionstore.usermanagement.model.Login;
 import com.fashionstore.usermanagement.model.User;
 import com.fashionstore.usermanagement.service.UserService;
 
-import io.jsonwebtoken.Claims;
 
-@CrossOrigin("*")
+@CrossOrigin(origins = {"https://localhost:3000","https://localhost:5000"},allowCredentials = "true",allowedHeaders = "*")
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -59,7 +62,7 @@ public class UserController {
 	}
 	
 	@PostMapping(value="/login")
-	public ResponseEntity<Object> loginUser(@RequestBody User user){
+	public ResponseEntity<Object> loginUser(@RequestBody User user,HttpServletResponse response){
 		User fetchedUser = userService.checkLogin(user.getEmail());
 		
 		if(fetchedUser == null) {
@@ -70,23 +73,50 @@ public class UserController {
 		}else if(!fetchedUser.getIsActive()){
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User is not active!");
 		}else {
+			/**
+			 * Creating JWT Token
+			 */
 			String token = jwtGenerator.generateToken(fetchedUser);
+			
+			/**
+			 * Creating HttpOnly cookie and adding the JWT token in the cookie send it in the response
+			 */
+			Cookie cookie = new Cookie("jwtToken", token);
+			cookie.setMaxAge(7 * 24 * 60 * 60);
+			cookie.setSecure(true);
+			cookie.setHttpOnly(true);
+			cookie.setPath("/");
+			cookie.setDomain("localhost");
+			response.addCookie(cookie);
+			
+			/**
+			 * Sending user id and the other information as success of the login
+			 */
 			Login login = new Login();
 			login.set_id(fetchedUser.get_id());
 			login.setIsActive(fetchedUser.getIsActive());
 			login.setIsVerified(true);
-			login.setJwtToken(token);
+			
+			
 			return ResponseEntity.status(HttpStatus.ACCEPTED).body(login);
 		}
 	}
 	
 	@PostMapping(value="/authenticate")
-	public ResponseEntity<Object> authenticateUser(@RequestHeader("Authorization") String authentcation){
-		if(authentcation == null || !authentcation.startsWith("Bearer ")){
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid token");
-        }
+	public ResponseEntity<Object> authenticateUser(HttpServletRequest request){
 		
-		String token = authentcation.substring(7);
+		/**
+		 * Retrieving the httpOnly cookie send in the request
+		 */
+		 Cookie[] cookies = request.getCookies();
+		 String token = "";
+		 if (cookies != null) {
+			 token =  Arrays.stream(cookies).map(c -> c.getName() + "=" + c.getValue()).collect(Collectors.joining(", "));
+		    }
+		
+		 /**
+		  * Validating the JWT token
+		  */
 		String username = jwtGenerator.validateToken(token);
 		User user = userService.checkLogin(username);
 		if(user != null) {
