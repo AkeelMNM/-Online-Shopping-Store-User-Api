@@ -6,8 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.fashionstore.usermanagement.dao.UserRepository;
 import com.fashionstore.usermanagement.model.User;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
+
 
 @Service
 public class UserService {
@@ -16,17 +15,20 @@ public class UserService {
 	UserRepository userRepository;
 	
 	public User createUser(User user) {
+		
 		return userRepository.save(user);
 	}
 	
 	public User checkLogin(String email) {
 		User user = userRepository.findOneByEmail(email);
+		
 		return user;
 	}
 	
 	public User getUser(String id) {
 		Optional<User> user = userRepository.findById(id);
 		User fechedUser = user.get();
+		
 		return fechedUser;
 	}
 	
@@ -42,11 +44,11 @@ public class UserService {
 			existAcc.setFullName(user.getFullName());
 		}
 		
-		if(!existAcc.getPassword().equals(existAcc.getPassword()) && !user.getPassword().equals("")) {
+		if(!existAcc.getPassword().equals(user.getPassword()) && !user.getPassword().equals("")) {
 			existAcc.setPassword(user.getPassword());
 		}
-		
 		userRepository.save(existAcc);
+		
 		return existAcc;
 	}
 	

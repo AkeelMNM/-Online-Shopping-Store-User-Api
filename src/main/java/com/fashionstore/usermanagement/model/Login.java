@@ -5,6 +5,7 @@ public class Login {
 	private Boolean isVerified;
 	private Boolean isActive;
 	private String jwtToken;
+	private String message;
 	
 	public Login(){
 		
@@ -40,6 +41,14 @@ public class Login {
 
 	public void setJwtToken(String jwtToken) {
 		this.jwtToken = jwtToken;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
 	}
 	
 }
