@@ -74,7 +74,7 @@ public class UserController {
 		}
 		else if(!user.getPassword().equals(fetchedUser.getPassword())) {
 			login.setIsVerified(false);
-			login.setMessage("User passwords don't match!");
+			login.setMessage("User password don't match!");
 			
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(login);
 		}else if(!fetchedUser.getIsActive()){
